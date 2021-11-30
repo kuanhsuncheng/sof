@@ -122,7 +122,7 @@ const struct ext_man_windows xsram_window
 
 static SHARED_DATA struct timer timer = {
 	.id = OSTIMER0,
-	.irq = LX_ADSP_TIMTER_IRQ0_B,
+	.irq = MTK_DSP_INT_OSTIMER32,
 };
 
 /* Override the default MPU setup. This table matches the memory map
@@ -210,9 +210,10 @@ int platform_init(struct sof *sof)
 	/* initialize the host IPC mechanims */
 	ipc_init(sof);
 
-	ret = dai_init(sof);
-	if (ret < 0)
-		return -ENODEV;
+	/* TO-DO*/
+	// ret = dai_init(sof);
+	// if (ret < 0)
+	// 	return -ENODEV;
 
 #if CONFIG_TRACE
 	/* Initialize DMA for Trace*/
