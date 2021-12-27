@@ -28,6 +28,9 @@
 #include <sof/schedule/ll_schedule.h>
 #include <sof/schedule/ll_schedule_domain.h>
 #include <ipc/trace.h>
+#ifdef CONFIG_MEDIATEK
+#include <sof/drivers/uart.h>
+#endif
 
 /* main firmware context */
 static struct sof sof;
@@ -119,6 +122,7 @@ static int secondary_core_restore(void)
 
 	trace_point(TRACE_BOOT_PLATFORM);
 
+
 	/* In restore case (D0ix->D0 flow) we do not have to invoke here
 	 * schedule_task(*task_main_get(), 0, UINT64_MAX) as it is done in
 	 * cold boot process (see end of secondary_core_init() function),
@@ -189,6 +193,9 @@ static int primary_core_init(int argc, char *argv[], struct sof *sof)
 	/* setup context */
 	sof->argc = argc;
 	sof->argv = argv;
+#ifdef CONFIG_MEDIATEK
+	InitDebugSerial();
+#endif
 
 #ifndef __ZEPHYR__
 	/* init architecture */

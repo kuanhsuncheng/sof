@@ -19,43 +19,33 @@
 #include <stddef.h>
 #include <stdint.h>
 
+
+#include <sof/drivers/uart.h>
+#include <platform/printf.h>
+
 /* fa00558c-d653-4851-a03a-b21f125a9524 */
-DECLARE_SOF_UUID("irq-mt8195", irq_mt8195_uuid, 0xfa00558c, 0xd653, 0x4851,
+DECLARE_SOF_UUID("irq-mt8186", irq_mt8186_uuid, 0xfa00558c, 0xd653, 0x4851,
 		 0xa0, 0x3a, 0xb2, 0x1f, 0x12, 0x5a, 0x95, 0x24);
 
-DECLARE_TR_CTX(int_tr, SOF_UUID(irq_mt8195_uuid), LOG_LEVEL_INFO);
+DECLARE_TR_CTX(int_tr, SOF_UUID(irq_mt8186_uuid), LOG_LEVEL_INFO);
 
-/* os timer reg value * 77ns 13M os timer
- * 1  ms: 12987* 1.5ms: 19436
- * 2  ms: 25974* 3  ms: 38961
- */
 
-static void irq_mask_all(void)
+static void mtk_irq_irq_init(void)
 {
-	io_reg_update_bits(RG_DSP_IRQ_EN, 0xffffffff, 0x0);
-	io_reg_update_bits(DSP_IRQ_EN, 0xffffffff, 0x0);
+	// hw disable all irq
+	io_reg_update_bits(MTK_DSP_IRQ_EN, 0xffffffff, 0xffffffff);
+	 // hw unmask irq
+	io_reg_update_bits(MTK_DSP_IRQ_MASK, 0x3ff, 0x3ff);
 }
 
 static void mtk_irq_mask(struct irq_desc *desc, uint32_t irq, unsigned int core)
 {
-	int32_t in_irq, level;
-
 	if (!desc) {
-		level = GET_INTLEVEL(irq);
-		in_irq = GET_INTERRUPT_ID(irq);
-		if (level > MAX_IRQ_NUM) {
-			tr_err(&int_tr, "Invalid interrupt %d", irq);
-			return;
-		}
-
-		io_reg_update_bits(RG_DSP_IRQ_EN, BIT(in_irq), 0x0);
+		io_reg_update_bits(MTK_DSP_IRQ_EN, BIT(irq), 0x0);
 	} else {
 		switch (desc->irq) {
-		case IRQ_EXT_DOMAIN0:
-			io_reg_update_bits(RG_DSP_IRQ_EN, BIT(irq + IRQ_EXT_DOMAIN0_OFFSET), 0x0);
-			break;
-		case IRQ_EXT_DOMAIN1:
-			io_reg_update_bits(DSP_IRQ_EN, BIT(irq), 0x0);
+		case MTK_DSP_INT_MAILBOX:
+			io_reg_update_bits(MTK_DSP_IRQ_EN, BIT(desc->irq), 0x0);
 			break;
 		default:
 			tr_err(&int_tr, "Invalid interrupt %d", desc->irq);
@@ -66,25 +56,12 @@ static void mtk_irq_mask(struct irq_desc *desc, uint32_t irq, unsigned int core)
 
 static void mtk_irq_unmask(struct irq_desc *desc, uint32_t irq, unsigned int core)
 {
-	int32_t in_irq, level;
-
 	if (!desc) {
-		level = GET_INTLEVEL(irq);
-		in_irq = GET_INTERRUPT_ID(irq);
-		if (level > MAX_IRQ_NUM) {
-			tr_err(&int_tr, "Invalid interrupt %d", irq);
-			return;
-		}
-
-		io_reg_update_bits(RG_DSP_IRQ_EN, BIT(in_irq), BIT(in_irq));
+		io_reg_update_bits(MTK_DSP_IRQ_EN, BIT(irq), BIT(irq));
 	} else {
 		switch (desc->irq) {
-		case IRQ_EXT_DOMAIN0:
-			io_reg_update_bits(RG_DSP_IRQ_EN, BIT(irq + IRQ_EXT_DOMAIN0_OFFSET),
-					   BIT(irq + IRQ_EXT_DOMAIN0_OFFSET));
-			break;
-		case IRQ_EXT_DOMAIN1:
-			io_reg_update_bits(DSP_IRQ_EN, BIT(irq), BIT(irq));
+		case MTK_DSP_INT_MAILBOX:
+			io_reg_update_bits(MTK_DSP_IRQ_EN, BIT(desc->irq), BIT(desc->irq));
 			break;
 		default:
 			tr_err(&int_tr, "Invalid interrupt %d", desc->irq);
@@ -96,17 +73,13 @@ static void mtk_irq_unmask(struct irq_desc *desc, uint32_t irq, unsigned int cor
 static uint64_t mtk_get_irq_interrupts(uint32_t irq)
 {
 	uint32_t irq_status;
-
-	switch (irq) {
-	case IRQ_NUM_EXT_LEVEL23:
-		irq_status = io_reg_read(DSP_IRQ_STATUS);
-		irq_status &= IRQ_EXT_DOMAIN2_MASK;
-		break;
-	default:
-		irq_status = io_reg_read(RG_DSP_IRQ_STATUS);
-		irq_status &= IRQ_EXT_DOMAIN1_MASK;
-		break;
+	DBG("Allen trace 0x%x \n",io_reg_read(MTK_DSP_IRQ_STATUS));
+	if(irq == MTK_DSP_INT_MAILBOX && (io_reg_read(MTK_DSP_IRQ_STATUS) & 0x4)) {
+		//B070 ADSP_MBOX_IRQ_IN[0:4]
+		irq_status = io_reg_read(MTK_MBOX_IRQ_IN) & MTK_DSP_MBOX_MASK;
+		DBG("Allen trace  irq_status  0x%x \n",irq_status);
 	}
+
 	return irq_status;
 }
 
@@ -123,12 +96,12 @@ static inline void mtk_handle_irq(struct irq_cascade_desc *cascade,
 	struct irq_desc *child = NULL;
 	int bit;
 	bool handled;
-
+	DBG("Allen trace status %d cascade 0x%x \n",(unsigned int)status,cascade);
 	while (status) {
 		bit = get_first_irq(status);
 		handled = false;
 		status &= ~(1ull << bit);
-
+		DBG("Allen trace bit %d status %d &cascade->child 0x%x cascade 0x%x \n",bit,(unsigned int)status,&cascade->child,cascade);
 		spin_lock(&cascade->lock);
 
 		list_for_item(clist, &cascade->child[bit].list) {
@@ -144,10 +117,7 @@ static inline void mtk_handle_irq(struct irq_cascade_desc *cascade,
 
 		if (!handled) {
 			tr_err(&int_tr, "irq_handler(): not handled, bit %d", bit);
-			if (line_index == IRQ_NUM_EXT_LEVEL23)
-				io_reg_update_bits(DSP_IRQ_EN, BIT(bit), 0x0);
-			else
-				io_reg_update_bits(RG_DSP_IRQ_EN, BIT(bit), 0x0);
+			io_reg_update_bits(MTK_DSP_IRQ_EN, BIT(bit), 0x0);
 		}
 	}
 }
@@ -158,13 +128,14 @@ static inline void irq_handler(void *data, uint32_t line_index)
 	struct irq_cascade_desc *cascade =
 		container_of(parent, struct irq_cascade_desc, desc);
 	uint64_t status;
-
 	status = mtk_get_irq_interrupts(line_index);
+	DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade);
+	if (status) {
+		DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade);
 
-	if (status)
 		/* Handle current interrupts */
 		mtk_handle_irq(cascade, line_index, status);
-	else
+	} else
 		tr_err(&int_tr, "invalid interrupt status");
 }
 
@@ -174,11 +145,9 @@ static inline void irq_handler(void *data, uint32_t line_index)
 		irq_handler(arg, n); \
 	}
 
-DEFINE_IRQ_HANDLER(1)
-DEFINE_IRQ_HANDLER(23)
+DEFINE_IRQ_HANDLER(2)
 
-static const char mtk_irq_ext_domain0[] = "mtk_irq_ext_domain0";
-static const char mtk_irq_ext_domain1[] = "mtk_irq_ext_domain1";
+static const char mtk_irq_mailbox[] = "mtk_irq_mailbox";
 
 static const struct irq_cascade_ops irq_ops = {
 	.mask = mtk_irq_mask,
@@ -187,16 +156,9 @@ static const struct irq_cascade_ops irq_ops = {
 
 static const struct irq_cascade_tmpl dsp_irq[] = {
 	{
-		.name = mtk_irq_ext_domain0,
-		.irq = IRQ_NUM_EXT_LEVEL01,
-		.handler = irqhandler_1,
-		.ops = &irq_ops,
-		.global_mask = false,
-	},
-	{
-		.name = mtk_irq_ext_domain1,
-		.irq = IRQ_NUM_EXT_LEVEL23,
-		.handler = irqhandler_23,
+		.name = mtk_irq_mailbox,
+		.irq = MTK_DSP_INT_MAILBOX,
+		.handler = irqhandler_2,
 		.ops = &irq_ops,
 		.global_mask = false,
 	},
@@ -205,22 +167,19 @@ static const struct irq_cascade_tmpl dsp_irq[] = {
 uint32_t mtk_get_irq_domain_id(int32_t irq)
 {
 	uint32_t in_irq = GET_INTERRUPT_ID(irq);
-	int32_t level = GET_INTLEVEL(irq);
+	uint32_t res;
 
-	if (in_irq >= DOMAIN1_MAX_IRQ_NUM)
-		in_irq -= DOMAIN1_MAX_IRQ_NUM;
+	if (in_irq >= MTK_MAX_IRQ_NUM)
+		in_irq -= MTK_MAX_IRQ_NUM;
 
-	if (level == IRQ_EXT_DOMAIN0)
-		return interrupt_get_irq(in_irq, dsp_irq[0].name);
-	else
-		return interrupt_get_irq(in_irq, dsp_irq[1].name);
+	res = interrupt_get_irq(in_irq, dsp_irq[0].name);
+	return res;
 }
 
 void platform_interrupt_init(void)
 {
 	int i;
-
-	irq_mask_all();
+	mtk_irq_irq_init();
 
 	for (i = 0; i < ARRAY_SIZE(dsp_irq); i++)
 		interrupt_cascade_register(dsp_irq + i);
