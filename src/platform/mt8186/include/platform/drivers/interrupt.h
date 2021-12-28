@@ -46,9 +46,9 @@
 #define MTK_DSP_INT_MAILBOX                 2
 #define MTK_DSP_INT_SYSTIMER0               3
 #define MTK_DSP_INT_SYSTIMER1               4
-#define MTK_DSP_INT_AFE                     5
-#define MTK_DSP_INT_SW1                     6
-#define MTK_DSP_INT_SW2                     7
+#define MTK_DSP_INT_CORE0                   5
+#define MTK_DSP_INT_RSV0                    6
+#define MTK_DSP_INT_RSV1                    7
 #define MTK_DSP_INT_CONNSYS1                8
 #define MTK_DSP_INT_CONNSYS2                9
 #define MTK_DSP_INT_CONNSYS3                10
@@ -66,9 +66,15 @@
 #define MTK_DSP_INT_WAKEUP_SRC              23
 #define MTK_DSP_INT_INFRA_HANG              24
 #define MTK_DSP_INT_NMI                     25
-/* 26 ~ 31 is Cadence internal Module */
-#define MTK_MAX_IRQ_NUM                     26
+/* Cadence internal Modules */
+#define MTK_DSP_INT_TIMER0                  26
+#define MTK_DSP_INT_TIMER1                  27
+#define MTK_DSP_INT_TIMER2                  28
+#define MTK_DSP_INT_PMU                     29
+#define MTK_DSP_INT_WERR                    30
+#define MTK_DSP_INT_SW                      31
 
+#define MTK_MAX_IRQ_NUM                     32
 
 #define MTK_DSP_INT_TIMER0                  26
 

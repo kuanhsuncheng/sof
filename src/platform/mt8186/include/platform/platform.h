@@ -34,7 +34,7 @@ struct timer;
 #define PLATFORM_PAGE_TABLE_SIZE 256
 
 /* pipeline IRQ */
-#define PLATFORM_SCHEDULE_IRQ MTK_DSP_INT_SW1
+#define PLATFORM_SCHEDULE_IRQ MTK_DSP_INT_SW
 #define PLATFORM_SCHEDULE_IRQ_NAME NULL
 
 /* Platform stream capabilities */
