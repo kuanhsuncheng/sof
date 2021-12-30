@@ -161,8 +161,7 @@ int platform_boot_complete(uint32_t boot_message)
 	clock_set_freq(CLK_CPU(cpu_get_id()), CLK_DEFAULT_CPU_HZ);
 
 	DBG("boot complete\n");
-	/*will remove */
-	while(1);
+
 	return 0;
 }
 
