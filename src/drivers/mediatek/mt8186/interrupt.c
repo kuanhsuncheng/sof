@@ -72,7 +72,8 @@ static void mtk_irq_unmask(struct irq_desc *desc, uint32_t irq, unsigned int cor
 
 static uint64_t mtk_get_irq_interrupts(uint32_t irq)
 {
-	uint32_t irq_status;
+	uint32_t irq_status = 0;
+
 	DBG("Allen trace 0x%x \n",io_reg_read(MTK_DSP_IRQ_STATUS));
 	if(irq == MTK_DSP_INT_MAILBOX && (io_reg_read(MTK_DSP_IRQ_STATUS) & 0x4)) {
 		//B070 ADSP_MBOX_IRQ_IN[0:4]
