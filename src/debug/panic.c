@@ -18,6 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <platform/printf.h>
+
 void dump_panicinfo(void *addr, struct sof_ipc_panic_info *panic_info)
 {
 	int ret;
@@ -84,6 +86,8 @@ void panic_dump(uint32_t p, struct sof_ipc_panic_info *panic_info,
 	ext_offset = (char *)mailbox_get_exception_base() + ARCH_OOPS_SIZE;
 
 	/* dump panic info, filename and linenum */
+	DBG("panic dump %x\n", ext_offset);
+
 	dump_panicinfo(ext_offset, panic_info);
 	ext_offset += sizeof(struct sof_ipc_panic_info);
 
@@ -118,6 +122,8 @@ void __panic(uint32_t panic_code, char *filename, uint32_t linenum)
 	const unsigned int length_max = sizeof(panicinfo.filename);
 	int mem_len;
 	int ret;
+
+	DBG("%s %d\n", filename, linenum);
 
 	/* including the ending '\0' */
 	mem_len = rstrlen(filename) + 1;

@@ -32,6 +32,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <sof/drivers/uart.h>
+#include <platform/printf.h>
+
 /* 58782c63-1326-4185-8459-22272e12d1f1 */
 DECLARE_SOF_UUID("dma-trace", dma_trace_uuid, 0x58782c63, 0x1326, 0x4185,
 		 0x84, 0x59, 0x22, 0x27, 0x2e, 0x12, 0xd1, 0xf1);
@@ -100,7 +103,9 @@ static enum task_state trace_work(void *data)
 	if (buffer->r_ptr >= buffer->end_addr)
 		buffer->r_ptr = (char *)buffer->r_ptr - DMA_TRACE_LOCAL_SIZE;
 
+	DBG("\n");
 	ipc_msg_send(d->msg, &d->posn, false);
+	DBG("\n");
 
 out:
 	spin_lock_irq(&d->lock, flags);
@@ -145,6 +150,8 @@ int dma_trace_init_early(struct sof *sof)
 	spinlock_init(&sof->dmat->lock);
 
 	ipc_build_trace_posn(&sof->dmat->posn);
+
+	DBG("cmd %x\n", sof->dmat->posn.rhdr.hdr.cmd);
 	sof->dmat->msg = ipc_msg_init(sof->dmat->posn.rhdr.hdr.cmd,
 				      sizeof(sof->dmat->posn));
 	if (!sof->dmat->msg) {
@@ -172,6 +179,8 @@ int dma_trace_init_complete(struct dma_trace_data *d)
 	int ret = 0;
 
 	tr_info(&dt_tr, "dma_trace_init_complete()");
+
+	DBG("dma_trace_init_complete()\n");
 
 	if (!d) {
 		mtrace_printf(LOG_LEVEL_ERROR,
@@ -202,6 +211,7 @@ int dma_trace_init_complete(struct dma_trace_data *d)
 			      SOF_TASK_PRI_MED, trace_work, d, 0, 0);
 
 out:
+	DBG("dma_trace_init_complete() ret %d\n", ret);
 
 	return ret;
 }
