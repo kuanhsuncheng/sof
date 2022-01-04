@@ -73,7 +73,7 @@ void trigger_irq_to_host_rsp(void)
 
 void trigger_irq_to_host_req(void)
 {
-	DBG("Allen trace 0x%x \n",MTK_DSP_MBOX_OUT_CMD(1));
+	/* DBG("Allen trace 0x%x\n",MTK_DSP_MBOX_OUT_CMD(1)); */
 	io_reg_write(MTK_DSP_MBOX_OUT_CMD(1), ADSP_IPI_OP_REQ);
 }
 

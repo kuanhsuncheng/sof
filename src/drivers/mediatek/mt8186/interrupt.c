@@ -74,11 +74,11 @@ static uint64_t mtk_get_irq_interrupts(uint32_t irq)
 {
 	uint32_t irq_status = 0;
 
-	DBG("Allen trace 0x%x \n",io_reg_read(MTK_DSP_IRQ_STATUS));
+	/* DBG("Allen trace 0x%x\n",io_reg_read(MTK_DSP_IRQ_STATUS)); */
 	if(irq == MTK_DSP_INT_MAILBOX && (io_reg_read(MTK_DSP_IRQ_STATUS) & 0x4)) {
 		//B070 ADSP_MBOX_IRQ_IN[0:4]
 		irq_status = io_reg_read(MTK_MBOX_IRQ_IN) & MTK_DSP_MBOX_MASK;
-		DBG("Allen trace  irq_status  0x%x \n",irq_status);
+		/* DBG("Allen trace  irq_status  0x%x\n",irq_status); */
 	}
 
 	return irq_status;
@@ -97,12 +97,13 @@ static inline void mtk_handle_irq(struct irq_cascade_desc *cascade,
 	struct irq_desc *child = NULL;
 	int bit;
 	bool handled;
-	DBG("Allen trace status %d cascade 0x%x \n",(unsigned int)status,cascade);
+	/* DBG("Allen trace status %d cascade 0x%x\n",(unsigned int)status,cascade); */
 	while (status) {
 		bit = get_first_irq(status);
 		handled = false;
 		status &= ~(1ull << bit);
-		DBG("Allen trace bit %d status %d &cascade->child 0x%x cascade 0x%x \n",bit,(unsigned int)status,&cascade->child,cascade);
+		/* DBG("Allen trace bit %d status %d &cascade->child 0x%x cascade 0x%x\n", */
+				/* bit,(unsigned int)status,&cascade->child,cascade); */
 		spin_lock(&cascade->lock);
 
 		list_for_item(clist, &cascade->child[bit].list) {
@@ -130,9 +131,9 @@ static inline void irq_handler(void *data, uint32_t line_index)
 		container_of(parent, struct irq_cascade_desc, desc);
 	uint64_t status;
 	status = mtk_get_irq_interrupts(line_index);
-	DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade);
+	/* DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade); */
 	if (status) {
-		DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade);
+		/* DBG("Allen trace status %u cascade 0x%x\n",(unsigned int)status,cascade); */
 
 		/* Handle current interrupts */
 		mtk_handle_irq(cascade, line_index, status);
