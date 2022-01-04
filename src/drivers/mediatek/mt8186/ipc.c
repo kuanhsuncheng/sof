@@ -67,7 +67,7 @@ static void mbox1_handler(void *args)
 
 void trigger_irq_to_host_rsp(void)
 {
-	DBG("Allen trace  0x%x \n",MTK_DSP_MBOX_OUT_CMD(0));
+	DBG("Allen trace  0x%x\n",MTK_DSP_MBOX_OUT_CMD(0));
 	io_reg_write(MTK_DSP_MBOX_OUT_CMD(0), ADSP_IPI_OP_RSP);
 }
 
@@ -148,10 +148,10 @@ int platform_ipc_init(struct ipc *ipc)
 		panic(SOF_IPC_PANIC_IPC);
 	}
 #endif
-	DBG("platform_ipc_init  \n");
+	DBG("platform_ipc_init\n");
 	mbox_irq0 = mtk_get_irq_domain_id(LX_MBOX_IRQ0_B);
 	mbox_irq1 = mtk_get_irq_domain_id(LX_MBOX_IRQ1_B);
-	DBG("platform_ipc_init mbox_irq0 %d  mbox_irq1 %d ipc  0x%x \n",mbox_irq0,mbox_irq1,ipc);
+	DBG("platform_ipc_init mbox_irq0 %d  mbox_irq1 %d ipc  0x%x\n",mbox_irq0,mbox_irq1,ipc);
 	interrupt_register(mbox_irq0, mbox0_handler, ipc);
 	interrupt_register(mbox_irq1, mbox1_handler, ipc);
 	interrupt_enable(mbox_irq0, ipc);

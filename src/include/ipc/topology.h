@@ -308,4 +308,8 @@ struct sof_ipc_comp_ext {
 	uint8_t uuid[SOF_UUID_SIZE];
 } __attribute__((packed, aligned(4)));
 
+struct sof_ipc_test {
+	struct sof_ipc_reply rhdr;
+	int count;
+} __attribute__((packed, aligned(4)));
 #endif /* __IPC_TOPOLOGY_H__ */
