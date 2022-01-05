@@ -25,7 +25,7 @@
 #define VECTOR_SIZE	    0x700
 #define SRAM_START	    (SRAM_BASE + VECTOR_SIZE)
 
-#define DRAM_BASE	    0x50000000
+#define DRAM_BASE	    0x60000000
 #define DRAM0_SIZE	    0x500000
 #define MAILBOX_BASE    (DRAM_BASE + DRAM0_SIZE)
 #define DSP_SYS_SIZE    0xA00000
@@ -152,7 +152,7 @@
 /* Stack configuration */
 #define SOF_STACK_SIZE 0x8000
 #define SOF_STACK_TOTAL_SIZE SOF_STACK_SIZE /*4KB*/
-#define SOF_STACK_BASE 0x50500000
+#define SOF_STACK_BASE (DRAM_BASE + DRAM0_SIZE)
 #define SOF_STACK_END (SOF_STACK_BASE - SOF_STACK_TOTAL_SIZE)
 
 /* Vector and literal sizes - not in core-isa.h */
