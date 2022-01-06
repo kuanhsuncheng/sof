@@ -11,7 +11,11 @@
 #include <sof/sof.h>
 #include <sof/spinlock.h>
 
+#include <mt8186-afe-regs.h>
+#include <mt8186-afe-common.h>
+
 extern struct dma_ops dummy_dma_ops;
+extern struct dma_ops memif_ops;
 
 SHARED_DATA struct dma dma[PLATFORM_NUM_DMACS] = {
 {
@@ -22,6 +26,16 @@ SHARED_DATA struct dma dma[PLATFORM_NUM_DMACS] = {
 		.channels	= 16,
 	},
 	.ops	= &dummy_dma_ops,
+},
+{
+	.plat_data = {
+		.id		= DMA_ID_AFE_MEMIF,
+		.dir		= DMA_DIR_MEM_TO_DEV | DMA_DIR_DEV_TO_MEM,
+		.devs		= DMA_DEV_AFE_MEMIF,
+		.base		= AFE_BASE_ADDR,
+		.channels	= MT8186_MEMIF_NUM,
+	},
+	.ops	= &memif_ops,
 },
 };
 
