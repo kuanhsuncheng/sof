@@ -36,6 +36,9 @@
 #include <xtensa/hal.h>
 #include <platform/drivers/timer.h>
 
+#include <sof/drivers/uart.h>
+#include <platform/printf.h>
+
 struct sof;
 
 static const struct sof_ipc_fw_ready ready
@@ -211,4 +214,9 @@ int platform_init(struct sof *sof)
 int platform_context_save(struct sof *sof)
 {
 	return 0;
+}
+
+void _putchar(char character)
+{
+	WriteDebugByte(character);
 }
