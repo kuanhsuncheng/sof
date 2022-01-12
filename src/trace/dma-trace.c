@@ -59,6 +59,8 @@ static enum task_state trace_work(void *data)
 	int32_t size;
 	uint32_t overflow;
 
+	tr_info(&dt_tr, "trace_work():");
+
 	/* make sure we don't write more than buffer */
 	if (avail > DMA_TRACE_LOCAL_SIZE) {
 		overflow = avail - DMA_TRACE_LOCAL_SIZE;
