@@ -21,9 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* 30290c76-6a05-4784-8464-c21f09cee87e */
-DECLARE_SOF_UUID("afe-dai", afe_dai_uuid, 0x30290c76, 0x6a05, 0x4784,
-		 0x84, 0x64, 0xc2, 0x1f, 0x09, 0xce, 0xe8, 0x7e);
+/* ef8bd339-3aa5-4314-a06b-1339e3dec821 */
+DECLARE_SOF_UUID("afe-dai", afe_dai_uuid, 0xef8bd339, 0x3aa5, 0x4314,
+		 0xa0, 0x6b, 0x13, 0x39, 0xe3, 0xde, 0xc8, 0x21);
 
 DECLARE_TR_CTX(afe_dai_tr, SOF_UUID(afe_dai_uuid), LOG_LEVEL_INFO);
 

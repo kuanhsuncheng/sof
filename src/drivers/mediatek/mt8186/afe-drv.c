@@ -23,8 +23,9 @@ static struct mtk_base_afe mtk_afe;
 #define printf(format, ...)
 #endif
 
-DECLARE_SOF_UUID("afedrv", afedrv_uuid, 0x4e8f16d1, 0xe935, 0x41f4,
-		 0xb9, 0x9e, 0x42, 0xc5, 0x7e, 0x74, 0x57, 0x84);
+/* 21448a3f-c054-41b3-8d9e-b7619a93c27b */
+DECLARE_SOF_UUID("afedrv", afedrv_uuid, 0x21448a3f, 0xc054, 0x41b3,
+		 0x8d, 0x9e, 0xb7, 0x61, 0x9a, 0x93, 0xc2, 0x7b);
 
 DECLARE_TR_CTX(afedrv_tr, SOF_UUID(afedrv_uuid), LOG_LEVEL_INFO);
 

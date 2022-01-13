@@ -22,9 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* df5e94d7-fd93-42e9-bb94-ab40becc7151 */
-DECLARE_SOF_UUID("memif", memif_uuid, 0xdf5e94d7, 0xfd93, 0x42e9,
-		 0xbb, 0x94, 0xab, 0x40, 0xbe, 0xcc, 0x71, 0x51);
+/* 76f4e24c-cd46-4564-8d1d-2e93ddbf14f0 */
+DECLARE_SOF_UUID("memif", memif_uuid, 0x76f4e24c, 0xcd46, 0x4564,
+		 0x8d, 0x1d, 0x2e, 0x93, 0xdd, 0xbf, 0x14, 0xf0);
 
 DECLARE_TR_CTX(memif_tr, SOF_UUID(memif_uuid), LOG_LEVEL_INFO);
 
@@ -41,7 +41,7 @@ DECLARE_TR_CTX(memif_tr, SOF_UUID(memif_uuid), LOG_LEVEL_INFO);
 #if TEST_SGEN
 #include <mt8186-afe-regs.h>
 #include <mt8186-afe-common.h>
-#define TEST_SGEN_ID MT8186_MEMIF_DL2
+#define TEST_SGEN_ID MT8186_MEMIF_UL1
 #define AUDIO_TML_PD_MASK 1
 #define AUDIO_TML_PD_SHIFT 27
 
@@ -60,19 +60,19 @@ DECLARE_TR_CTX(memif_tr, SOF_UUID(memif_uuid), LOG_LEVEL_INFO);
 #define AFE_SGEN_ENABLE_MASK 0x1
 #define AFE_SGEN_ENABLE_SHIFT 26
 
-#define AFE_SINEGEN_CON1_TIMING_CH1_MASK 0x1f
-#define AFE_SINEGEN_CON1_TIMING_CH1_SHIFT 16
-#define AFE_SINEGEN_CON1_TIMING_CH2_MASK 0x1f
-#define AFE_SINEGEN_CON1_TIMING_CH2_SHIFT 21
+#define AFE_SINEGEN_CON1_TIMING_CH1_MASK 0xf
+#define AFE_SINEGEN_CON1_TIMING_CH1_SHIFT 8
+#define AFE_SINEGEN_CON1_TIMING_CH2_MASK 0xf
+#define AFE_SINEGEN_CON1_TIMING_CH2_SHIFT 20
 
 #define AFE_SINEGEN_LB_MODE_MSK 0xff
-#define AFE_SINEGEN_LB_MODE_SHIFT 24
+#define AFE_SINEGEN_LB_MODE_SHIFT 0
 
 enum {
-	MT8186_SGEN_UL5 = 0x18,
-	MT8186_SGEN_UL4 = 0x1f,
-	MT8186_SGEN_DL3 = 0x47,
-	MT8186_SGEN_DL2 = 0x60,
+	MT8186_SGEN_UL1 = 0x96,
+	MT8186_SGEN_UL2 = 0x86,
+	MT8186_SGEN_DL1 = 0x6,
+	MT8186_SGEN_DL2 = 0x8,
 };
 
 /*sgen freq div*/
@@ -89,35 +89,32 @@ enum {
 
 /*sgen amp div*/
 enum {
-	SGEN_AMP_D1 = 0,
-	SGEN_AMP_D2 = 1,
-	SGEN_AMP_D4 = 2,
-	SGEN_AMP_D8 = 3,
-	SGEN_AMP_D16 = 4,
-	SGEN_AMP_D32 = 5,
-	SGEN_AMP_D64 = 6,
-	SGEN_AMP_D128 = 7,
+	SGEN_AMP_D128 = 0,
+	SGEN_AMP_D64 = 1,
+	SGEN_AMP_D32 = 2,
+	SGEN_AMP_D16 = 3,
+	SGEN_AMP_D8 = 4,
+	SGEN_AMP_D4 = 5,
+	SGEN_AMP_D2 = 6,
+	SGEN_AMP_D1 = 7,
 };
 
 enum {
 	SGEN_CH_TIMING_8K = 0,
-	SGEN_CH_TIMING_12K = 1,
-	SGEN_CH_TIMING_16K = 2,
-	SGEN_CH_TIMING_24K = 3,
-	SGEN_CH_TIMING_32K = 4,
-	SGEN_CH_TIMING_48K = 5,
-	SGEN_CH_TIMING_96K = 6,
-	SGEN_CH_TIMING_192K = 7,
-	SGEN_CH_TIMING_384K = 8,
-	SGEN_CH_TIMING_7P35K = 16,
-	SGEN_CH_TIMING_11P025K = 17,
-	SGEN_CH_TIMING_14P7K = 18,
-	SGEN_CH_TIMING_22P05K = 19,
-	SGEN_CH_TIMING_29P4K = 20,
-	SGEN_CH_TIMING_44P1K = 21,
-	SGEN_CH_TIMING_88P2K = 22,
-	SGEN_CH_TIMING_176P4K = 23,
-	SGEN_CH_TIMING_352P8K = 24,
+	SGEN_CH_TIMING_11P025K = 1,
+	SGEN_CH_TIMING_12K = 2,
+	SGEN_CH_TIMING_384K = 3,
+	SGEN_CH_TIMING_16K = 4,
+	SGEN_CH_TIMING_22P05K = 5,
+	SGEN_CH_TIMING_24K = 6,
+	SGEN_CH_TIMING_352P8K = 7,
+	SGEN_CH_TIMING_32K = 8,
+	SGEN_CH_TIMING_44P1K = 9,
+	SGEN_CH_TIMING_48K = 10,
+	SGEN_CH_TIMING_88P2K = 11,
+	SGEN_CH_TIMING_96K = 12,
+	SGEN_CH_TIMING_176P4K = 13,
+	SGEN_CH_TIMING_192K = 14,	
 };
 #endif
 
@@ -221,20 +218,11 @@ static uint32_t mt8186_sinegen_timing(uint32_t rate)
 	case 384000:
 		sinegen_timing = SGEN_CH_TIMING_384K;
 		break;
-	case 7350:
-		sinegen_timing = SGEN_CH_TIMING_7P35K;
-		break;
 	case 11025:
 		sinegen_timing = SGEN_CH_TIMING_11P025K;
 		break;
-	case 14700:
-		sinegen_timing = SGEN_CH_TIMING_14P7K;
-		break;
 	case 22050:
 		sinegen_timing = SGEN_CH_TIMING_22P05K;
-		break;
-	case 29400:
-		sinegen_timing = SGEN_CH_TIMING_29P4K;
 		break;
 	case 44100:
 		sinegen_timing = SGEN_CH_TIMING_44P1K;
@@ -277,20 +265,20 @@ static void mt8186_afe_sinegen_enable(uint32_t sgen_id, uint32_t rate, int enabl
 	if (enable == 1) {
 		/* set loopback mode */
 		switch (sgen_id) {
-		case MT8186_MEMIF_UL4:
-			loopback_mode = MT8186_SGEN_UL4;
+		case MT8186_MEMIF_UL1:
+			loopback_mode = MT8186_SGEN_UL1;
 			break;
-		case MT8186_MEMIF_UL5:
-			loopback_mode = MT8186_SGEN_UL5;
+		case MT8186_MEMIF_UL2:
+			loopback_mode = MT8186_SGEN_UL2;
+			break;
+		case MT8186_MEMIF_DL1:
+			loopback_mode = MT8186_SGEN_DL1;
 			break;
 		case MT8186_MEMIF_DL2:
 			loopback_mode = MT8186_SGEN_DL2;
 			break;
-		case MT8186_MEMIF_DL3:
-			loopback_mode = MT8186_SGEN_DL3;
-			break;
 		default:
-			tr_err(ctx, fmt, ...)(&memif_tr, "invalid sgen_id", sgen_id);
+			tr_err(&memif_tr, "invalid sgen_id %d", sgen_id);
 			return;
 		}
 		/* enable sinegen clock*/
@@ -301,9 +289,9 @@ static void mt8186_afe_sinegen_enable(uint32_t sgen_id, uint32_t rate, int enabl
 					AFE_SINEGEN_LB_MODE_SHIFT);
 
 		/* sine gen timing*/
-		mtk_afe_reg_update_bits(AFE_SINEGEN_CON1, AFE_SINEGEN_CON1_TIMING_CH1_MASK,
+		mtk_afe_reg_update_bits(AFE_SINEGEN_CON0, AFE_SINEGEN_CON1_TIMING_CH1_MASK,
 					sinegen_timing, AFE_SINEGEN_CON1_TIMING_CH1_SHIFT);
-		mtk_afe_reg_update_bits(AFE_SINEGEN_CON1, AFE_SINEGEN_CON1_TIMING_CH2_MASK,
+		mtk_afe_reg_update_bits(AFE_SINEGEN_CON0, AFE_SINEGEN_CON1_TIMING_CH2_MASK,
 					sinegen_timing, AFE_SINEGEN_CON1_TIMING_CH2_SHIFT);
 
 		/*freq div*/

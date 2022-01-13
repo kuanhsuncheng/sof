@@ -215,10 +215,9 @@ int platform_init(struct sof *sof)
 	/* initialize the host IPC mechanims */
 	ipc_init(sof);
 
-	/* TO-DO*/
-	// ret = dai_init(sof);
-	// if (ret < 0)
-	//  	return -ENODEV;
+	ret = dai_init(sof);
+	if (ret < 0)
+		return -ENODEV;
 
 #if CONFIG_TRACE
 	/* Initialize DMA for Trace*/
