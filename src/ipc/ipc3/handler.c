@@ -52,6 +52,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <sof/drivers/uart.h>
+#include <platform/printf.h>
+
 #if CONFIG_CAVS && CAVS_VERSION >= CAVS_VERSION_1_8
 #include <ipc/header-intel-cavs.h>
 #include <cavs/drivers/sideband-ipc.h>
@@ -1478,12 +1481,53 @@ static int ipc_glb_debug_message(uint32_t header)
 }
 
 #if CONFIG_DEBUG
+static void ipi_test(void)
+{
+	static struct ipc_msg *test_msg;
+	static int count = 0;
+
+	struct sof_ipc_test my;
+
+	if (!test_msg) {
+		test_msg = ipc_msg_init(my.rhdr.hdr.cmd, sizeof(struct sof_ipc_test));
+	}
+
+	my.rhdr.hdr.cmd = SOF_IPC_GLB_TEST | SOF_IPC_TEST_IPC_FLOOD;
+	my.rhdr.hdr.size = sizeof(struct sof_ipc_test);
+	my.count = ++count;
+
+	{
+		int i = 0;
+		int32_t *dp = (int32_t *)&my;
+
+
+		DBG("tx msg\n");
+		for (i = 0; i < sizeof(my) / 4; i++) {
+			DBG("0x%x\n", dp[i]);
+		}
+	}
+
+	// send by ipc task
+	ipc_msg_send(test_msg, &my, false);
+
+	/* if (ipc_msg_is_queued(test_msg)) */
+		/* tr_err(&ipc_tr, "test_msg is queued"); */
+	/* else */
+		/* tr_err(&ipc_tr, "test_msg is not queued"); */
+
+	// TODO
+	/* ipc_msg_free(test_msg); */
+}
+
 static int ipc_glb_test_message(uint32_t header)
 {
 	uint32_t cmd = iCS(header);
 
 	switch (cmd) {
 	case SOF_IPC_TEST_IPC_FLOOD:
+		DBG("SOF_IPC_TEST_IPC_FLOOD\n");
+		ipi_test();
+		tr_err(&ipc_tr, "SOF_IPC_TEST_IPC_FLOOD");
 		return 0; /* just return so next IPC can be sent */
 	default:
 		tr_err(&ipc_tr, "ipc: unknown test header 0x%x", header);
