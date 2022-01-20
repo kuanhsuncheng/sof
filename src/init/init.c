@@ -30,6 +30,7 @@
 #include <ipc/trace.h>
 #ifdef CONFIG_MEDIATEK
 #include <sof/drivers/uart.h>
+#include <platform/printf.h>
 #endif
 
 /* main firmware context */
@@ -196,6 +197,11 @@ static int primary_core_init(int argc, char *argv[], struct sof *sof)
 #ifdef CONFIG_MEDIATEK
 	InitDebugSerial();
 #endif
+
+	DBG("\n\n\n\n\n\n");
+	DBG("=============================\n");
+	DBG("BOOOOOOOOOOOOOOOOOOOOOOMMMMMM\n");
+	DBG("=============================\n");
 
 #ifndef __ZEPHYR__
 	/* init architecture */
